@@ -1,0 +1,41 @@
+This is the basic swig example and will wrap the c++ function hello() which prints "Hello World!" to java
+
+To start with we have two files, hello.cpp and hello.i. The cpp file should be pretty self explanatory, it is just a function without any classes or anything special. In the .i file however we have some new swig things. You should also have a Main.java file wich will help us later.
+
+first we have the line: %module hello, which specifies a name for the wrapper module and the resulting lib.so file. This could be anything but obviously its nice to name it something that will make it easy to keep track of what is what. 
+
+Next we have the two lines: 
+
+'''
+%{                                                                              
+  void hello();                                                                 
+%}                                                                              
+'''
+           
+and              
+'''                                                                                
+void hello();                                                              
+''
+
+Everything within the %{ ... %} is simply copied verbatim to the resulting wrapper file created by SWIG. In this case we are just wrapping functions but header files could be substituted for specific functions as will be seen in later examples. If you go to line 245 of the hello_wrap.cpp in the endResults folder, you can see how the hello() function is added along with a lot of stuff required for later integration with the java code. 
+
+The second part is so that java has something to execute at runtime. 
+
+Now actually swig this code we will run the following command:
+'''
+swig -java -c++ hello.i
+'''
+
+In words this would be run swig and create a java interface to run c++ code using the information in hello.i
+
+Running this command should give you the following files:
+
+ hello.java which is basically a class which has functions with the same name as our c++ code which calls the JNIcode which is the code that actually communicates with the c++ code.  
+ 
+ in the helloJNI.java you can find the hello function as well.
+ 
+ Finally you should have a hello_wrap.cxx file which you might have looked into in the previous section.
+ 
+ Now we run (Change paths where needed):
+ $ g++ -shared -o libhello.so -I/usr/lib/jvm/java-11-openjdk-amd64/include -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux -fPIC hello.cpp hello_wrap.cxx
+ 
