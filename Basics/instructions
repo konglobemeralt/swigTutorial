@@ -23,10 +23,10 @@ The second part is so that java has something to execute at runtime.
 
 Now actually swig this code we will run the following command:
 '''
-swig -java -c++ hello.i
+swig -java -c++ -cppext cpp hello.i
 '''
 
-In words this would be run swig and create a java interface to run c++ code using the information in hello.i
+In words this would be run swig and create a java interface to run c++ code and add the extension .cpp to the wrapper file using the information in hello.i. 
 
 Running this command should give you the following files:
 
@@ -34,10 +34,10 @@ Running this command should give you the following files:
  
  in the helloJNI.java you can find the hello function as well.
  
- Finally you should have a hello_wrap.cxx file which you might have looked into in the previous section.
+ Finally you should have a hello_wrap.cpp file which you might have looked into in the previous section.
  
  Now we run (Change paths where needed):
-g++ -shared -o libhello.so -I/usr/lib/jvm/java-11-openjdk-amd64/include -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux -fPIC hello.cpp hello_wrap.cxx
+g++ -shared -o libhello.so -I/usr/lib/jvm/java-11-openjdk-amd64/include -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux -fPIC hello.cpp hello_wrap.cpp
  
 With this done we should now have a .so file named libhello. 
 

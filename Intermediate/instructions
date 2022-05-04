@@ -1,0 +1,60 @@
+Start by cloning the https://github.com/RI-SE/iso22133 repo.
+
+This repo has already been swigged, but here we will take a closer look at some more advanced aspects of swig. 
+
+If we look at the iso22133.i folder we will se a number of new things.
+
+First of all, instead of single functions as we saw in the basic example we now include entire files. 
+
+For example take a look at the following lines:
+
+4 %{
+5 #include "iso22133.h"
+6 #include "positioning.h"
+ ...
+8 %}
+
+ ...
+34 %include "iso22133.h"
+35 %include "positioning.h"
+ ...
+ 
+ In the same way that we in the basic exampel told swig about the specific function we here tell swig about the entire contents of iso22133.h and positioning.h
+ 
+ 
+ 
+ 
+Now we can swig stuff
+
+run the command (note that we do not need cppext since we are swigging c to java): 
+swig -java iso22133.i
+
+then we compile (note how we now include a number of other files.):
+gcc -fPIC -Wall -c positioning.c iso22133.c iso22133_wrap.c -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux -fPIC
+
+and then
+gcc -shared positioning.o iso22133_wrap.o iso22133.o -o libiso22133.so
+
+
+We can now create a small test program like this:
+
+public class IsoTest {
+    static {
+                System.loadLibrary("iso22133");
+    }
+
+    public static void main(String argv[]) {
+        timeval heabTime = new timeval();
+        System.out.println(ControlCenterStatusType.CONTROL_CENTER_STATUS_ABORT);
+
+        iso22133 iso = new iso22133();
+        iso.encodeHEABMessage(heabTime, ControlCenterStatusType.CONTROL_CENTER_STATUS_RUNNING, "datatadatadata", 22, '1');
+        }
+}
+
+
+Use the command: 'javac *.java' to compile all java files in the folder. 
+
+Then we can hopefully run java IsoTest and get some relevant output. 
+
+Note, In the case that you get "java.lang.UnsatisfiedLinkError: no hello in java.library.path:" you might also be required to run: export LD_LIBRARY_PATH=. #ksh so that java can find your .so file.
