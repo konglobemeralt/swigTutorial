@@ -21,7 +21,19 @@ For example take a look at the following lines:
  
  In the same way that we in the basic exampel told swig about the specific function we here tell swig about the entire contents of iso22133.h and positioning.h
  
- 
+Also, Note, someone has apparently added support for swigging iso22133 to Python but unfortunately this brakes Java-swigging so comment or delete the following lines: 
+
+
+10 -18:
+%apply int *OUTPUT {ObjectCommandType* command};
+%inline %{
+	extern ssize_t decodeOSTMMessage(const char* ostmDataBuffer, const size_t bufferLength, ObjectCommandType* command, const char debug);
+%}
+
+%apply int *OUTPUT {uint32_t *senderID}
+%inline %{
+extern ssize_t decodeOSEMMessage(ObjectSettingsType *objectSettingsData, const char * osemDataBuffer, const size_t bufferLength, uint32_t *senderID, const char debug);
+%}
  
  
 Now we can swig stuff
@@ -30,7 +42,12 @@ run the command (note that we do not need cppext since we are swigging c to java
 swig -java iso22133.i
 
 then we compile (note how we now include a number of other files.):
-gcc -fPIC -Wall -c positioning.c iso22133.c iso22133_wrap.c -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux -fPIC
+gcc -fPIC -Wall -c positioning.c iso22133.c iso22133_wrap.c -I/usr/lib/jvm/java-11-openjdk-amd64/include -I/usr/lib/jvm/java-11-openjdk-amd64/include/linux -fPIC
+
+
+-fPic Position Independent Code means that the generated machine code is not dependent on being located at a specific address in order to work.
+
+-Wall All warnings pls
 
 and then
 gcc -shared positioning.o iso22133_wrap.o iso22133.o -o libiso22133.so
